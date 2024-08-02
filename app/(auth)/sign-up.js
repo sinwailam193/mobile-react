@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { ScrollView, View, Text, Image } from "react-native";
+import { ScrollView, View, Text, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 
 import { images } from "../../constants";
 import { FormField, CustomButton } from "../../components";
@@ -15,8 +15,27 @@ export default function SignUp() {
     });
     const [submitLoading, setSubmitLoading] = useState(false);
 
-    function handlePress() {
-        createUser();
+    async function handlePress() {
+        const { username, email, password } = formField;
+
+        if (!username || !email || !password) {
+            Alert.alert("Error", "Please fill in all the fields.");
+            return;
+        }
+
+        setSubmitLoading(true);
+
+        try {
+            const res = await createUser(email, password, username);
+
+            // set it to global state
+
+            router.replace("/home");
+        } catch (err) {
+            Alert.alert("Error", err.message);
+        } finally {
+            setSubmitLoading(false);
+        }
     }
 
     return (
