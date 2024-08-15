@@ -1,17 +1,31 @@
-import { FlatList, Text, View, Image } from "react-native";
+import { useState } from "react";
+import { FlatList, Text, View, Image, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "../../constants";
-import { SearchInput, Trending } from "../../components";
+import { getAllPosts } from "../../lib/appwrite";
+import { useAppwrite } from "../../lib/hooks";
+import { SearchInput, Trending, EmptyState } from "../../components";
 
 export default function Home() {
+    const [refreshing, setRefreshing] = useState(false);
+    const { posts, isLoading, refetch } = useAppwrite(getAllPosts);
+
+    async function handleRefresh() {
+        // refresh gets called when user pulls down
+        setRefreshing(true);
+        // re call videos
+        await refetch();
+        setRefreshing(false);
+    }
+
     return (
-        <SafeAreaView className="bg-primary">
+        <SafeAreaView className="bg-primary h-full">
             <FlatList
-                data={[{ $id: 1 }, { $id: 2 }, { $id: 3 }]}
+                data={posts}
                 keyExtractor={(item) => item.$id}
                 renderItem={({ item }) => (
-                    <Text className="text-3xl text-white">{item.$id}</Text>
+                    <Text className="text-3xl text-white">{item.title}</Text>
                 )}
                 ListHeaderComponent={() => (
                     <View className="my-6 px-4 space-y-6">
@@ -41,11 +55,25 @@ export default function Home() {
                             </Text>
 
                             <Trending
-                                posts={[{ id: 1 }, { id: 2 }, { id: 3 }] ?? []}
+                                posts={
+                                    [{ $id: 1 }, { $id: 2 }, { $id: 3 }] ?? []
+                                }
                             />
                         </View>
                     </View>
                 )}
+                ListEmptyComponent={() => (
+                    <EmptyState
+                        title="No videos found"
+                        subtitle="No videos created yet"
+                    />
+                )}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={handleRefresh}
+                    />
+                }
             />
         </SafeAreaView>
     );
