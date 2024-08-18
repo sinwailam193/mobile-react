@@ -1,7 +1,7 @@
 import { TouchableOpacity, Text } from "react-native";
 import cn from "classnames";
 
-export default function Button({
+export default function CustomButton({
     title,
     containerStyle,
     onPress,
