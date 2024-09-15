@@ -3,26 +3,29 @@ import { FlatList, Text, View, Image, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "../../constants";
-import { getAllPosts } from "../../lib/appwrite";
+import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
 import { useAppwrite } from "../../lib/hooks";
 import { SearchInput, Trending, EmptyState, VideoCard } from "../../components";
 
 export default function Home() {
     const [refreshing, setRefreshing] = useState(false);
-    const { posts, isLoading, refetch } = useAppwrite(getAllPosts);
+    const { posts: allPosts, refetch: allPostRefetch } =
+        useAppwrite(getAllPosts);
+    const { posts: latestPosts, refetch: latestPostRefetch } =
+        useAppwrite(getLatestPosts);
 
     async function handleRefresh() {
         // refresh gets called when user pulls down
         setRefreshing(true);
         // re call videos
-        await refetch();
+        await allPostRefetch();
         setRefreshing(false);
     }
 
     return (
         <SafeAreaView className="bg-primary h-full">
             <FlatList
-                data={posts}
+                data={allPosts}
                 keyExtractor={(item) => item.$id}
                 renderItem={({ item }) => <VideoCard video={item} />}
                 ListHeaderComponent={() => (
@@ -52,11 +55,7 @@ export default function Home() {
                                 Latest videos
                             </Text>
 
-                            <Trending
-                                posts={
-                                    [{ $id: 1 }, { $id: 2 }, { $id: 3 }] ?? []
-                                }
-                            />
+                            <Trending posts={latestPosts ?? []} />
                         </View>
                     </View>
                 )}
