@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Video, ResizeMode } from "expo-av";
 import clsx from "clsx";
 import {
     TouchableOpacity,
@@ -39,7 +40,24 @@ function TrendingItem({ isActive, item }) {
             duration={500}
         >
             {play ? (
-                <Text className="text-white">Playing</Text>
+                <Video
+                    source={{ uri: item.video }}
+                    className={clsx(
+                        "w-52",
+                        "h-72",
+                        "rounded-[35px]",
+                        "mt-3",
+                        "bg-white/10"
+                    )}
+                    resizeMode={ResizeMode.CONTAIN}
+                    useNativeControls
+                    shouldPlay
+                    onPlaybackStatusUpdate={(status) => {
+                        if (status.didJustFinish) {
+                            setPlay(false);
+                        }
+                    }}
+                />
             ) : (
                 <TouchableOpacity
                     className={clsx(

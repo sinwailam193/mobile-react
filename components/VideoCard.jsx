@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
+import { Video, ResizeMode } from "expo-av";
+import clsx from "clsx";
 
 import { icons } from "../constants";
 
@@ -51,7 +53,20 @@ export default function VideoCard({
             </View>
 
             {play ? (
-                <Text className="text-white">Playing</Text>
+                <Video
+                    source={{
+                        uri: "https://player.vimeo.com/video/949579770",
+                    }}
+                    className={clsx("w-full", "h-60", "rounded-xl", "mt-3")}
+                    resizeMode={ResizeMode.CONTAIN}
+                    useNativeControls
+                    shouldPlay
+                    onPlaybackStatusUpdate={(status) => {
+                        if (status.didJustFinish) {
+                            setPlay(false);
+                        }
+                    }}
+                />
             ) : (
                 <TouchableOpacity
                     activeOpacity={0.7}
